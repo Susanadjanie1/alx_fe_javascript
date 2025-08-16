@@ -1,4 +1,4 @@
-// Our quote notebook
+// Quotes Data
 const quotes = [
   {
     text: "The best way to predict the future is to create it.",
@@ -19,22 +19,56 @@ const quotes = [
   { text: "An apple a day keeps the doctor away.", category: "Health" },
 ];
 
-// A map to the HTML pieces.
+// DOM Elements
 const quoteDisplay = document.getElementById("quoteDisplay");
 const newQuoteButton = document.getElementById("newQuoteButton");
 const newQuoteText = document.getElementById("newQuoteText");
 const newQuoteCategory = document.getElementById("newQuoteCategory");
 const addQuoteButton = document.getElementById("addQuoteButton");
 
+// Local Storage Functions
+function saveQuotes() {
+  localStorage.setItem("quotes", JSON.stringify(quotes));
+}
+
+function loadQuotes() {
+  const storedQuotes = localStorage.getItem("quotes");
+  if (storedQuotes) {
+    quotes.length = 0; // clear current quotes
+    quotes.push(...JSON.parse(storedQuotes));
+  }
+}
+
+
+// Session Storage Functions
+function saveLastQuote(quote) {
+  sessionStorage.setItem("lastQuote", JSON.stringify(quote));
+}
+
+function loadLastQuote() {
+  const last = sessionStorage.getItem("lastQuote");
+  return last ? JSON.parse(last) : null;
+}
+
+
 // Show a Random Quote
 function showRandomQuote() {
-  const randomIndex = Math.floor(Math.random() * quotes.length);
-  const randomQuote = quotes[randomIndex];
+  let randomQuote;
+
+  // If we have a last quote in session, show it first
+  const lastQuote = loadLastQuote();
+  if (lastQuote) {
+    randomQuote = lastQuote;
+    sessionStorage.removeItem("lastQuote"); 
+  } else {
+    const randomIndex = Math.floor(Math.random() * quotes.length);
+    randomQuote = quotes[randomIndex];
+  }
 
   // Clear old content
   quoteDisplay.innerHTML = "";
 
-  // Create elements for the new quote
+  // Create elements
   const quoteTextEl = document.createElement("p");
   quoteTextEl.id = "quoteText";
   quoteTextEl.textContent = `"${randomQuote.text}"`;
@@ -43,38 +77,72 @@ function showRandomQuote() {
   quoteCategoryEl.id = "quoteAuthor";
   quoteCategoryEl.textContent = `— ${randomQuote.category}`;
 
-  // Append them to the display
+  // Append
   quoteDisplay.appendChild(quoteTextEl);
   quoteDisplay.appendChild(quoteCategoryEl);
+
+  // Save this as the last shown quote
+  saveLastQuote(randomQuote);
 }
+
 
 // Add a New Quote
 function addQuote() {
   const quote = newQuoteText.value.trim();
   const category = newQuoteCategory.value.trim();
 
-  // Check that inputs are not empty
   if (quote !== "" && category !== "") {
     const newQuote = { text: quote, category: category };
     quotes.push(newQuote);
+    saveQuotes();
 
-    // Clear inputs
     newQuoteText.value = "";
     newQuoteCategory.value = "";
 
-    // Show the newly added quote
     showRandomQuote();
   }
 }
 
-// Button event listeners
+
+// Export / Import JSON
+function exportToJsonFile() {
+  const dataStr = JSON.stringify(quotes, null, 2); // pretty format
+  const blob = new Blob([dataStr], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "quotes.json";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importFromJsonFile(event) {
+  const fileReader = new FileReader();
+  fileReader.onload = function (e) {
+    const importedQuotes = JSON.parse(e.target.result);
+    quotes.push(...importedQuotes);
+    saveQuotes();
+    alert("Quotes imported successfully!");
+    showRandomQuote();
+  };
+  fileReader.readAsText(event.target.files[0]);
+}
+
+
+// Event Listeners
 newQuoteButton.addEventListener("click", showRandomQuote);
 addQuoteButton.addEventListener("click", addQuote);
-window.onload = showRandomQuote;
+window.onload = function () {
+  loadQuotes();
+  showRandomQuote();
+};
 
-// Dummy function to avoid missing reference errors
+
+// Dummy Function 
+
 function createAddQuoteForm() {
   console.warn(
-    "createAddQuoteForm() was called, but it's not needed. Using addQuote() instead."
+    "createAddQuoteForm() was called, but it's not needed. Use addQuote() instead."
   );
 }
