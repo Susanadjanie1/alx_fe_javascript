@@ -59,3 +59,9 @@ function addQuote() {
 newQuoteButton.addEventListener("click", showRandomQuote);
 addQuoteButton.addEventListener("click", addQuote);
 window.onload = showRandomQuote;
+
+// Dummy function to avoid missing reference errors
+function createAddQuoteForm() {
+  console.warn("createAddQuoteForm() was called, but it's not needed. Use addQuote() instead.");
+}
+
