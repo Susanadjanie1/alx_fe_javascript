@@ -168,3 +168,6 @@ function createAddQuoteForm() {
     "createAddQuoteForm() was called, but it's not needed. Use addQuote() instead."
   );
 }
+
+// Compatibility alias
+const filterQuote = filterQuote;
