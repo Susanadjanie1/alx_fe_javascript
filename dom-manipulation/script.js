@@ -99,8 +99,30 @@ function addQuote() {
     newQuoteText.value = "";
     newQuoteCategory.value = "";
 
+     populateCategories();
+
     showRandomQuote();
   }
+}
+
+// Populate Categories for Filtering
+function populateCategories() {
+  const categories = ["all", ...new Set(quotes.map((q) => q.category))];
+
+  // Clear old options
+  categoryFilter.innerHTML = "";
+
+  // Fill dropdown
+  categories.forEach((cat) => {
+    const option = document.createElement("option");
+    option.value = cat;
+    option.textContent = cat.charAt(0).toUpperCase() + cat.slice(1);
+    categoryFilter.appendChild(option);
+  });
+
+  // Restore last selected filter
+  const savedFilter = loadFilter();
+  categoryFilter.value = savedFilter;
 }
 
 
