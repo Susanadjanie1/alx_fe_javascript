@@ -31,37 +31,50 @@ function showRandomQuote() {
   const randomIndex = Math.floor(Math.random() * quotes.length);
   const randomQuote = quotes[randomIndex];
 
-  // write the quote on our HTML page.
-  quoteDisplay.innerHTML = `
-    <p id="quoteText">"${randomQuote.text}"</p>
-    <p id="quoteAuthor">— ${randomQuote.category}</p>
-  `;
+  // Clear old content
+  quoteDisplay.innerHTML = "";
+
+  // Create elements for the new quote
+  const quoteTextEl = document.createElement("p");
+  quoteTextEl.id = "quoteText";
+  quoteTextEl.textContent = `"${randomQuote.text}"`;
+
+  const quoteCategoryEl = document.createElement("p");
+  quoteCategoryEl.id = "quoteAuthor";
+  quoteCategoryEl.textContent = `— ${randomQuote.category}`;
+
+  // Append them to the display
+  quoteDisplay.appendChild(quoteTextEl);
+  quoteDisplay.appendChild(quoteCategoryEl);
 }
 
-// TAdd a New Quote
+// Add a New Quote
 function addQuote() {
   const quote = newQuoteText.value.trim();
   const category = newQuoteCategory.value.trim();
 
-  // Check that box is not empty
+  // Check that inputs are not empty
   if (quote !== "" && category !== "") {
-    // New card for new quote.
     const newQuote = { text: quote, category: category };
     quotes.push(newQuote);
 
+    // Clear inputs
     newQuoteText.value = "";
     newQuoteCategory.value = "";
+
+    // Show the newly added quote
     showRandomQuote();
   }
 }
 
-// buttons instructions
+// Button event listeners
 newQuoteButton.addEventListener("click", showRandomQuote);
 addQuoteButton.addEventListener("click", addQuote);
 window.onload = showRandomQuote;
 
 // Dummy function to avoid missing reference errors
 function createAddQuoteForm() {
-  console.warn("createAddQuoteForm() was called, but it's not needed. Use addQuote() instead.");
+  console.warn(
+    "createAddQuoteForm() was called, but it's not needed. Using addQuote() instead."
+  );
 }
-
