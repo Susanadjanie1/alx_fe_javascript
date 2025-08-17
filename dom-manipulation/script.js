@@ -97,6 +97,7 @@ function addQuote() {
   if (quote && category) {
     quotes.push({ text: quote, category: category });
     saveQuotes();
+    syncQuotesToServer();
     newQuoteText.value = "";
     newQuoteCategory.value = "";
 
@@ -154,6 +155,64 @@ function importFromJsonFile(event) {
   };
   reader.readAsText(event.target.files[0]);
 }
+
+
+// Server Sync Simulation 
+
+async function fetchQuotesFromServer() {
+  try {
+    const response = await fetch("https://jsonplaceholder.typicode.com/posts");
+    const serverData = await response.json();
+
+    // Convert server response 
+    const serverQuotes = serverData.slice(0, 5).map(post => ({
+      text: post.title,
+      category: "Server"
+    }));
+
+    resolveConflicts(serverQuotes);
+  } catch (error) {
+    console.error("Error fetching server quotes:", error);
+  }
+}
+
+// Simulate sending quotes to the server
+async function syncQuotesToServer() {
+  try {
+    await fetch("https://jsonplaceholder.typicode.com/posts", {
+      method: "POST",
+      body: JSON.stringify(quotes),
+      headers: { "Content-Type": "application/json" }
+    });
+    console.log("Quotes synced to server successfully!");
+  } catch (error) {
+    console.error("Error syncing quotes to server:", error);
+  }
+}
+
+// Conflict resolution
+function resolveConflicts(serverQuotes) {
+  const merged = [...serverQuotes, ...quotes];
+  // remove duplicates by text
+  const unique = [];
+  const seen = new Set();
+
+  merged.forEach(q => {
+    if (!seen.has(q.text)) {
+      seen.add(q.text);
+      unique.push(q);
+    }
+  });
+
+  quotes.length = 0;
+  quotes.push(...unique);
+  saveQuotes();
+  showRandomQuote();
+  alert("Quotes updated from server!");
+}
+
+// Periodic sync 
+setInterval(fetchQuotesFromServer, 30000);
 
 
 // Event Listeners
